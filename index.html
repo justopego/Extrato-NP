@@ -468,16 +468,17 @@
    DADOS FAKE COM CÁLCULO REAL (saldo do dia = saldo anterior + entradas - saídas)
    ========================================================================= */
 const MESES=["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
-const TIPOS_IN=["Venda","Depósito","Link de pagamento","Pagamento"];
-const TIPOS_OUT=["Estorno","Contestação","Transferência"];
+const TIPOS_IN=["Venda","Depósito","Link de pagamento"];
+const TIPOS_OUT=["Estorno","Contestação","Transferência","Pagamento"]; // Pagamento (boleto) é saída
 const dirOf=t=>TIPOS_OUT.includes(t)?"out":"in";
-// Pools de tipos por tela (Contestação rara; futuros sem Depósito/Transferência)
-// Mais vendas e links; Pagamento (boleto) raro
+// Pools de tipos por tela (Contestação rara; futuros sem Depósito/Transferência/Pagamento)
 const IN_DISP=["Venda","Venda","Venda","Venda","Link de pagamento","Link de pagamento","Link de pagamento","Depósito"];
-const OUT_DISP=["Estorno","Estorno","Estorno","Estorno","Transferência","Transferência","Transferência","Contestação"];
-const IN_FUT=["Venda","Venda","Venda","Link de pagamento","Link de pagamento","Link de pagamento"]; // futuros: só Venda e Link (sem Depósito/Pagamento)
-const OUT_FUT=["Estorno","Estorno","Estorno","Estorno","Contestação"];   // sem Transferência
-function origem(t){return{ "Venda":"Loja online","Link de pagamento":"Link de pagamento","Pagamento":"Loja online",
+const OUT_DISP=["Estorno","Estorno","Estorno","Transferência","Transferência","Pagamento","Pagamento","Contestação"];
+const IN_FUT=["Venda","Venda","Venda","Link de pagamento","Link de pagamento","Link de pagamento"]; // futuros: só Venda e Link
+const OUT_FUT=["Estorno","Estorno","Estorno","Estorno","Contestação"];   // sem Transferência/Pagamento
+// Nomes dos pagamentos (saída via boleto) usados na tx-line
+const PAG_NOMES=["Plano Nuvemshop","Etiqueta de envio","Recarga Nuvem Envio","Mensalidade de aplicativo","Tarifa de processamento"];
+function origem(t){return{ "Venda":"Loja online","Link de pagamento":"Link de pagamento","Pagamento":"Pagamentos",
   "Depósito":"Conta Nuvem","Estorno":"Estorno","Contestação":"Contestação","Transferência":"Conta bancária"}[t]||"Loja online";}
 function nomeCurto(t){ return t==="Link de pagamento" ? "Link" : t; }
 // Regras de método de pagamento por tela:
@@ -490,6 +491,7 @@ function metodoDe(tipo, screen, rng){
     return "cartao";                      // Link em futuros = cartão (sem Pix)
   }
   // saldo disponível
+  if(tipo==="Pagamento") return "boleto"; // pagamento (saída) via boleto
   if(tipo==="Depósito"||tipo==="Transferência") return "pix";
   if(tipo==="Estorno") return rng()<0.5 ? "pix" : "cartao";
   if(tipo==="Link de pagamento") return rng()<0.45 ? "pix" : "cartao"; // Link+Pix só aqui
@@ -525,6 +527,7 @@ function gerar(seed, qtdDias, startDate, saldoInicial, screen){
       const valor=(Math.floor(rng()*39)+2)*5; // múltiplos de 5, R$10–R$200
       txSeq++;
       const t={tipo,id:txSeq,valor,metodo:metodoDe(tipo,screen,rng),direcao:dirOf(tipo),origem:origem(tipo)};
+      if(tipo==="Pagamento") t.nome=choice(rng,PAG_NOMES); // nome exibido na tx-line
       txs.push(t); if(t.direcao==="in")ent+=valor; else sai+=valor;
     }
     const saldoDia=saldoAnterior+ent-sai; saldoAnterior=saldoDia;
@@ -574,6 +577,7 @@ function matchesSearch(t,search){
   const q=search.trim().toLowerCase().replace("#","").replace("r$","").trim();
   if(!q)return true;
   if(t.tipo.toLowerCase().includes(q))return true;
+  if(t.nome && t.nome.toLowerCase().includes(q))return true;
   const onlyDigits=q.replace(/\D/g,"");
   if(/\d/.test(q)&&!q.includes(",")){ if(String(t.id).includes(onlyDigits))return true; }
   const valStr=t.valor.toLocaleString("pt-BR",{minimumFractionDigits:2});
@@ -610,7 +614,7 @@ function txRow(t){
     :'<svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 19V5M6 11l6-6 6 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   return `<div class="tx"><div class="tx-icon"><div class="method">${methodIcon(t.metodo)}</div><div class="badge ${out?'out':'in'}">${arrow}</div></div>
     <div class="tx-body"><span class="tx-origin">${t.origem}</span><div class="tx-line">
-    <span class="tx-name"><span class="lbl">${nomeCurto(t.tipo)} #</span><span class="num">${t.id}</span></span>
+    <span class="tx-name">${t.tipo==="Pagamento" ? `<span class="lbl">${t.nome}</span>` : `<span class="lbl">${nomeCurto(t.tipo)} #</span><span class="num">${t.id}</span>`}</span>
     <span class="tx-amount-wrap"><span class="tx-amount ${out?'out':''}">${out?'- ':''}${fmt(t.valor)}</span>
     <span class="tx-chev"><svg width="14" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></span>
     </div></div></div>`;
@@ -820,7 +824,7 @@ applyDesktopIcons();
 const PERIODOS_DISP=[["todos","Todas"],["hoje","Hoje"],["ontem","Ontem"],["7dias","Últimos 7 dias"],["30dias","Últimos 30 dias"],["custom","Personalizado"]];
 const PERIODOS_FUT=[["todos","Todas"],["amanha","Amanhã"],["prox2","Próximos 2 dias"],["prox7","Próximos 7 dias"],["prox30","Próximos 30 dias"],["custom","Personalizado"]];
 const MOVS=[["todas","Todas"],["entrada","Entrada"],["saida","Saída"]];
-const TIPOS_DISP=["Contestação","Depósito","Estorno","Link de pagamento","Transferência","Venda"];
+const TIPOS_DISP=["Contestação","Depósito","Estorno","Link de pagamento","Pagamento","Transferência","Venda"];
 const TIPOS_FUT=["Contestação","Estorno","Link de pagamento","Venda"]; // futuros: subconjunto
 function periodosDe(){ return screen==="futuros"?PERIODOS_FUT:PERIODOS_DISP; }
 function tiposDe(){ return screen==="futuros"?TIPOS_FUT:TIPOS_DISP; }
