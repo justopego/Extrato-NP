@@ -477,7 +477,7 @@ const OUT_DISP=["Estorno","Estorno","Estorno","Transferência","Transferência",
 const IN_FUT=["Venda","Venda","Venda","Link de pagamento","Link de pagamento","Link de pagamento"]; // futuros: só Venda e Link
 const OUT_FUT=["Estorno","Estorno","Estorno","Estorno","Contestação"];   // sem Transferência/Pagamento
 // Nomes dos pagamentos (saída via boleto) usados na tx-line
-const PAG_NOMES=["Plano Nuvemshop","Etiqueta de envio","Recarga Nuvem Envio","Mensalidade de aplicativo","Tarifa de processamento"];
+const PAG_NOMES=["Plano Nuvemshop","Etiqueta de envio","Etiqueta Nuvem de envio","Mensalidade de aplicativo","Plano Nuvemshop"];
 function origem(t){return{ "Venda":"Loja online","Link de pagamento":"Link de pagamento","Pagamento":"Pagamentos",
   "Depósito":"Conta Nuvem","Estorno":"Estorno","Contestação":"Contestação","Transferência":"Conta bancária"}[t]||"Loja online";}
 function nomeCurto(t){ return t==="Link de pagamento" ? "Link" : t; }
