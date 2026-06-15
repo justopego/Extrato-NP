@@ -220,6 +220,16 @@
   .nb-rbtn:hover span{border-color:var(--neutral-interactive-hover);}
   .nb-rbtn input:checked+span{background:var(--primary-interactive);border-color:var(--primary-interactive);color:#fff;}
   .nb-rbtn input:focus-visible+span{box-shadow:0 0 0 3px rgba(0,89,213,.25);}
+  /* Chips de filtros aplicados (estilo Radio Button) + Limpar filtros */
+  .fchips{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:4px 16px 14px;}
+  .fchips .lead{font-size:13px;line-height:16px;color:var(--neutral-text-low);margin-right:2px;}
+  .fchip{display:inline-flex;align-items:center;gap:6px;background:var(--neutral-surface);border:1px solid var(--neutral-interactive);
+    border-radius:4px;padding:4px 8px;font-size:14px;line-height:20px;color:var(--neutral-text-high);}
+  .fchip button{border:none;background:transparent;cursor:pointer;display:flex;align-items:center;color:var(--neutral-text-low);padding:0;}
+  .fchip button:hover{color:var(--neutral-text-high);}
+  .fclear{display:inline-flex;align-items:center;gap:5px;border:none;background:transparent;cursor:pointer;
+    color:var(--primary-interactive);font-size:13px;font-weight:500;line-height:16px;font-family:var(--font);padding:4px 2px;}
+  .fclear:hover{text-decoration:underline;}
   /* Nimbus Radio */
   .nb-radio,.nb-check{display:flex;align-items:center;gap:10px;font-size:14px;line-height:20px;color:var(--neutral-text-high);cursor:pointer;padding:6px 0;position:relative;}
   .nb-radio input,.nb-check input{position:absolute;opacity:0;width:18px;height:18px;margin:0;cursor:pointer;}
@@ -314,6 +324,7 @@
             <button class="icon-btn" aria-label="Filtros"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4.6 8.6H3.4V2.5H2.2V8.7H0.9C0.4 8.6 0 9 0 9.5V11.3C0 11.8 0.4 12.2 0.9 12.2H2.1V13.4H3.3V12.2H4.5C5 12.2 5.4 11.8 5.4 11.3V9.5C5.5 9 5.1 8.6 4.6 8.6ZM4.3 11.1H1.2V9.8H4.2V11.1H4.3Z" fill="currentColor"/><path d="M10.8 6.5V4.6C10.8 4.1 10.4 3.7 9.9 3.7H8.6V2.5H7.4V3.7H6.2C5.7 3.7 5.3 4.1 5.3 4.6V6.4C5.3 6.9 5.7 7.3 6.2 7.3H7.4V13.5H8.6V7.4H9.8C10.4 7.4 10.8 7 10.8 6.5ZM9.5 6.2H6.5V4.9H9.5V6.2Z" fill="currentColor"/><path d="M15.1 8H13.9V2.5H12.7V8H11.5C11 8 10.6 8.4 10.6 8.9V10.7C10.6 11.2 11 11.6 11.5 11.6H12.7V13.4H13.9V11.6H15.1C15.6 11.6 16 11.2 16 10.7V8.9C16 8.4 15.6 8 15.1 8ZM14.8 10.5H11.8V9.2H14.8V10.5Z" fill="currentColor"/></svg></button>
             <button class="icon-btn" aria-label="Exportar"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M8.8 0.75C9.35228 0.75 9.8 1.19772 9.8 1.75V6.45C9.8 6.45849 9.79989 6.46697 9.79968 6.47541L12.198 6.47541C13.0885 6.47541 13.5349 7.55173 12.9057 8.18194L8.68801 12.4065C8.29735 12.7978 7.6633 12.7978 7.27264 12.4065L3.05497 8.18193C2.4258 7.55173 2.87215 6.47541 3.76266 6.47541L6.20032 6.4754C6.20011 6.46696 6.2 6.45849 6.2 6.45V1.75C6.2 1.19772 6.64772 0.75 7.2 0.75H8.8ZM4.36551 7.72541L7.48188 7.72541L7.45 6.44714V2H8.55V6.44712L8.51812 7.72541H11.5951L7.98032 11.3462L4.36551 7.72541Z" fill="currentColor"/><path d="M2.5 15.25H13.5V14H2.5V15.25Z" fill="currentColor"/></svg></button>
           </div>
+          <div class="fchips hidden" id="mChips"></div>
           <div class="segmented" data-seg="mobile">
             <button class="seg-btn active" data-filter="todos">Todos</button>
             <button class="seg-btn" data-filter="hoje">Hoje</button>
@@ -424,6 +435,7 @@
                 <button class="icon-btn" aria-label="Filtros"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4.6 8.6H3.4V2.5H2.2V8.7H0.9C0.4 8.6 0 9 0 9.5V11.3C0 11.8 0.4 12.2 0.9 12.2H2.1V13.4H3.3V12.2H4.5C5 12.2 5.4 11.8 5.4 11.3V9.5C5.5 9 5.1 8.6 4.6 8.6ZM4.3 11.1H1.2V9.8H4.2V11.1H4.3Z" fill="currentColor"/><path d="M10.8 6.5V4.6C10.8 4.1 10.4 3.7 9.9 3.7H8.6V2.5H7.4V3.7H6.2C5.7 3.7 5.3 4.1 5.3 4.6V6.4C5.3 6.9 5.7 7.3 6.2 7.3H7.4V13.5H8.6V7.4H9.8C10.4 7.4 10.8 7 10.8 6.5ZM9.5 6.2H6.5V4.9H9.5V6.2Z" fill="currentColor"/><path d="M15.1 8H13.9V2.5H12.7V8H11.5C11 8 10.6 8.4 10.6 8.9V10.7C10.6 11.2 11 11.6 11.5 11.6H12.7V13.4H13.9V11.6H15.1C15.6 11.6 16 11.2 16 10.7V8.9C16 8.4 15.6 8 15.1 8ZM14.8 10.5H11.8V9.2H14.8V10.5Z" fill="currentColor"/></svg></button>
                 <button class="icon-btn" aria-label="Exportar"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M8.8 0.75C9.35228 0.75 9.8 1.19772 9.8 1.75V6.45C9.8 6.45849 9.79989 6.46697 9.79968 6.47541L12.198 6.47541C13.0885 6.47541 13.5349 7.55173 12.9057 8.18194L8.68801 12.4065C8.29735 12.7978 7.6633 12.7978 7.27264 12.4065L3.05497 8.18193C2.4258 7.55173 2.87215 6.47541 3.76266 6.47541L6.20032 6.4754C6.20011 6.46696 6.2 6.45849 6.2 6.45V1.75C6.2 1.19772 6.64772 0.75 7.2 0.75H8.8ZM4.36551 7.72541L7.48188 7.72541L7.45 6.44714V2H8.55V6.44712L8.51812 7.72541H11.5951L7.98032 11.3462L4.36551 7.72541Z" fill="currentColor"/><path d="M2.5 15.25H13.5V14H2.5V15.25Z" fill="currentColor"/></svg></button>
               </div>
+              <div class="fchips hidden" id="dChips"></div>
             </div>
             <div class="dk-card"><div class="list" id="dList"></div></div>
             <div class="dk-footer">
@@ -646,6 +658,7 @@ function renderMobile(){
   listEl.innerHTML = slice.length? slice.map(dayBlock).join("") : `<div class="empty">Nenhuma transação encontrada.</div>`;
   bindAccordions(listEl);
   document.getElementById("mLoader").classList.toggle("hidden", cfg.rendered>=days.length || slice.length===0);
+  renderChips("mobile");
 }
 function mobileSkeleton(){ document.getElementById("mList").innerHTML=skeletonHTML(); document.getElementById("mLoader").classList.add("hidden"); }
 function mobileReload(){ mobileSkeleton(); clearTimeout(state.mobile.timer); state.mobile.timer=setTimeout(renderMobile,2000); }
@@ -674,6 +687,7 @@ function renderDesktop(){
   listEl.innerHTML = slice.length? slice.map(dayBlock).join("") : `<div class="empty">Nenhuma transação encontrada.</div>`;
   bindAccordions(listEl);
   renderPagination(totalPages);
+  renderChips("desktop");
   // contador do rodapé (por lançamentos/transações)
   const totalTx=days.reduce((s,d)=>s+d.txs.length,0);
   const antesTx=days.slice(0,start).reduce((s,d)=>s+d.txs.length,0);
@@ -910,6 +924,51 @@ document.querySelectorAll('.icon-btn[aria-label="Filtros"]').forEach(btn=>{
 document.querySelectorAll('[data-fm-close]').forEach(el=>el.addEventListener("click",()=>closeFilter(el.dataset.fmClose)));
 document.querySelectorAll('[data-fm-apply]').forEach(el=>el.addEventListener("click",()=>applyFilter(el.dataset.fmApply)));
 document.querySelectorAll('[data-fm-clear]').forEach(el=>el.addEventListener("click",()=>clearFilter(el.dataset.fmClear)));
+
+/* ---- Chips de filtros aplicados ---- */
+function periodLabel(f){
+  return {todos:"Todos",hoje:"Hoje",ontem:"Ontem","7dias":"Últimos 7 dias","30dias":"Últimos 30 dias",
+    amanha:"Amanhã",prox2:"Próximos 2 dias",prox7:"Próximos 7 dias",prox30:"Próximos 30 dias",custom:"Personalizado"}[f]||f;
+}
+function renderChips(dev){
+  const cfg=state[dev], el=document.getElementById(dev==="mobile"?"mChips":"dChips"); if(!el)return;
+  const chips=[];
+  if(cfg.search && cfg.search.trim()) chips.push({k:"search", label:cfg.search.trim()});
+  if(cfg.filter!=="todos") chips.push({k:"period", label:periodLabel(cfg.filter)});
+  if(cfg.movement!=="todas") chips.push({k:"movement", label: cfg.movement==="entrada"?"Entradas":"Saídas"});
+  if(cfg.types && cfg.types.length) cfg.types.forEach(t=>chips.push({k:"type:"+t, label:t}));
+  if(chips.length===0){ el.classList.add("hidden"); el.innerHTML=""; return; }
+  el.classList.remove("hidden");
+  const n=filteredDays(cfg).reduce((s,d)=>s+d.txs.length,0);
+  const x='<svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+  const broom='<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M10.6803 2.40625H3.31935L3.67787 12.9062L10.3159 12.9063L10.6803 2.40625ZM3.31935 1.3125C2.70066 1.3125 2.20512 1.82524 2.22624 2.44357L2.58476 12.9436C2.60487 13.5328 3.08833 14 3.67787 14H10.3159C10.9052 14 11.3886 13.5331 11.409 12.9442L11.7733 2.44418C11.7948 1.82562 11.2992 1.3125 10.6803 1.3125H3.31935Z" fill="currentColor"/><path d="M3.20198 3.5H10.666V4.59375H3.20198V3.5Z" fill="currentColor"/><path d="M5.46613 6.125L5.46613 10.5H4.37238L4.37238 6.125H5.46613Z" fill="currentColor"/><path d="M7.54426 6.125L7.54426 10.5H6.45051L6.45051 6.125H7.54426Z" fill="currentColor"/><path d="M9.62238 6.125V10.5H8.52863V6.125H9.62238Z" fill="currentColor"/><path d="M6.99738 0C7.60069 0 8.09113 0.459531 8.09113 1.02415C8.09113 1.58876 7.60069 2.0483 6.99738 2.0483C6.39407 2.0483 5.90363 1.58876 5.90363 1.02415C5.90363 0.459531 6.39407 0 6.99738 0Z" fill="currentColor"/><path d="M5.90363 1.05273H8.09113V2.1875H5.90363V1.05273Z" fill="currentColor"/></svg>';
+  el.innerHTML = `<span class="lead">${n} ${n===1?"transação filtrada":"transações filtradas"} por:</span>`+
+    chips.map(c=>`<span class="fchip">${c.label}<button data-chip="${c.k}" data-dev="${dev}" aria-label="Remover filtro">${x}</button></span>`).join("")+
+    `<button class="fclear" data-clear="${dev}">${broom} Limpar filtros</button>`;
+}
+function removeChip(dev,key){
+  const cfg=state[dev];
+  if(key==="search"){ cfg.search=""; const i=document.querySelector(`[data-search="${dev}"]`); if(i)i.value=""; }
+  else if(key==="period"){ cfg.filter="todos"; syncSegmented(dev,"todos"); }
+  else if(key==="movement"){ cfg.movement="todas"; }
+  else if(key.indexOf("type:")===0){ const t=key.slice(5); cfg.types=(cfg.types||[]).filter(x=>x!==t); if(!cfg.types.length)cfg.types=null; }
+  if(dev==="mobile"){ state.mobile.rendered=4; renderMobile(); } else { state.desktop.page=1; renderDesktop(); }
+}
+function clearAllChips(dev){
+  const cfg=state[dev];
+  cfg.search=""; cfg.filter="todos"; cfg.movement="todas"; cfg.types=null; cfg.customStart=null; cfg.customEnd=null;
+  const i=document.querySelector(`[data-search="${dev}"]`); if(i)i.value="";
+  syncSegmented(dev,"todos");
+  if(dev==="mobile"){ state.mobile.rendered=4; renderMobile(); } else { state.desktop.page=1; renderDesktop(); }
+}
+["mChips","dChips"].forEach(id=>{
+  const el=document.getElementById(id); if(!el)return;
+  el.addEventListener("click",e=>{
+    const rm=e.target.closest("[data-chip]"), cl=e.target.closest("[data-clear]");
+    if(rm) removeChip(rm.dataset.dev, rm.dataset.chip);
+    else if(cl) clearAllChips(cl.dataset.clear);
+  });
+});
 
 /* ---- Init ---- */
 updateHeaders(); updateTags(); renderMobile();
