@@ -473,7 +473,7 @@ const TIPOS_OUT=["Estorno","Contestação","Transferência"];
 const dirOf=t=>TIPOS_OUT.includes(t)?"out":"in";
 // Pools de tipos por tela (Contestação rara; futuros sem Depósito/Transferência)
 // Mais vendas e links; Pagamento (boleto) raro
-const IN_DISP=["Venda","Venda","Venda","Link de pagamento","Link de pagamento","Link de pagamento","Pagamento","Depósito"];
+const IN_DISP=["Venda","Venda","Venda","Venda","Link de pagamento","Link de pagamento","Link de pagamento","Depósito"];
 const OUT_DISP=["Estorno","Estorno","Estorno","Estorno","Transferência","Transferência","Transferência","Contestação"];
 const IN_FUT=["Venda","Venda","Venda","Link de pagamento","Link de pagamento","Link de pagamento"]; // futuros: só Venda e Link (sem Depósito/Pagamento)
 const OUT_FUT=["Estorno","Estorno","Estorno","Estorno","Contestação"];   // sem Transferência
@@ -484,7 +484,6 @@ function nomeCurto(t){ return t==="Link de pagamento" ? "Link" : t; }
 // - Pix em "Link de pagamento" e em vendas só existe no SALDO DISPONÍVEL.
 // - Nos LANÇAMENTOS FUTUROS, Pix só aparece em Estorno (estorno de venda com Pix).
 function metodoDe(tipo, screen, rng){
-  if(tipo==="Pagamento") return "boleto";
   if(screen==="futuros"){
     if(tipo==="Estorno") return "pix";   // estorno de venda com Pix
     if(tipo==="Venda") return rng()<0.92 ? "cartao" : "boleto"; // sem Pix; poucas com boleto
@@ -821,7 +820,7 @@ applyDesktopIcons();
 const PERIODOS_DISP=[["todos","Todas"],["hoje","Hoje"],["ontem","Ontem"],["7dias","Últimos 7 dias"],["30dias","Últimos 30 dias"],["custom","Personalizado"]];
 const PERIODOS_FUT=[["todos","Todas"],["amanha","Amanhã"],["prox2","Próximos 2 dias"],["prox7","Próximos 7 dias"],["prox30","Próximos 30 dias"],["custom","Personalizado"]];
 const MOVS=[["todas","Todas"],["entrada","Entrada"],["saida","Saída"]];
-const TIPOS_DISP=["Contestação","Depósito","Estorno","Link de pagamento","Pagamento","Transferência","Venda"];
+const TIPOS_DISP=["Contestação","Depósito","Estorno","Link de pagamento","Transferência","Venda"];
 const TIPOS_FUT=["Contestação","Estorno","Link de pagamento","Venda"]; // futuros: subconjunto
 function periodosDe(){ return screen==="futuros"?PERIODOS_FUT:PERIODOS_DISP; }
 function tiposDe(){ return screen==="futuros"?TIPOS_FUT:TIPOS_DISP; }
