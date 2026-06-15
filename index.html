@@ -125,7 +125,10 @@
   .tx-amount{font-size:14px;line-height:20px;font-weight:600;color:var(--neutral-text-high);white-space:nowrap;}
   .tx-amount.out{color:var(--danger-text-low);}
   .tx-chev{color:var(--neutral-text-low);display:flex;}
-  .empty{padding:48px var(--s-4);text-align:center;color:var(--neutral-text-low);font-size:14px;}
+  .empty{display:flex;flex-direction:column;align-items:center;text-align:center;padding:56px 24px;gap:8px;}
+  .empty .empty-icon{color:var(--neutral-text-low);margin-bottom:8px;display:flex;}
+  .empty .empty-title{font-size:18px;line-height:24px;font-weight:600;color:var(--neutral-text-high);}
+  .empty .empty-text{font-size:14px;line-height:20px;color:var(--neutral-text-low);max-width:300px;}
 
   /* Skeleton */
   .sk-day{padding:var(--s-2) var(--s-4);background:var(--neutral-surface);display:flex;justify-content:space-between;}
@@ -544,6 +547,11 @@ const DATA={
 /* =========================================================================
    ESTADO + RENDER
    ========================================================================= */
+const EMPTY_HTML=`<div class="empty">
+  <span class="empty-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.6"/><path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span>
+  <span class="empty-title">Não encontramos resultados</span>
+  <span class="empty-text">Você pode buscar por número da venda ou filtrar por data e tipo de transação.</span>
+</div>`;
 const fmt=v=>"R$ "+v.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2});
 const fmtDay=d=>d.getDate()+" de "+MESES[d.getMonth()];
 let device="mobile", screen="disponivel";
@@ -658,7 +666,7 @@ function renderMobile(){
   const cfg=state.mobile, listEl=document.getElementById("mList");
   const days=filteredDays(cfg);
   const slice=days.slice(0,cfg.rendered);
-  listEl.innerHTML = slice.length? slice.map(dayBlock).join("") : `<div class="empty">Nenhuma transação encontrada.</div>`;
+  listEl.innerHTML = slice.length? slice.map(dayBlock).join("") : EMPTY_HTML;
   bindAccordions(listEl);
   document.getElementById("mLoader").classList.toggle("hidden", cfg.rendered>=days.length || slice.length===0);
   renderChips("mobile");
@@ -687,7 +695,7 @@ function renderDesktop(){
   if(cfg.page>totalPages)cfg.page=totalPages;
   const start=(cfg.page-1)*cfg.perPage;
   const slice=days.slice(start,start+cfg.perPage);
-  listEl.innerHTML = slice.length? slice.map(dayBlock).join("") : `<div class="empty">Nenhuma transação encontrada.</div>`;
+  listEl.innerHTML = slice.length? slice.map(dayBlock).join("") : EMPTY_HTML;
   bindAccordions(listEl);
   renderPagination(totalPages);
   renderChips("desktop");
