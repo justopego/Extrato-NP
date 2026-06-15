@@ -548,8 +548,8 @@ const fmt=v=>"R$ "+v.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFrac
 const fmtDay=d=>d.getDate()+" de "+MESES[d.getMonth()];
 let device="mobile", screen="disponivel";
 const state={
-  mobile:{filter:"todos",search:"",movement:"todas",types:null,customStart:null,customEnd:null,rendered:4,timer:null,debounce:null},
-  desktop:{filter:"todos",search:"",movement:"todas",types:null,customStart:null,customEnd:null,page:1,perPage:4,timer:null,debounce:null}
+  mobile:{filter:"todos",search:"",movement:"todas",types:null,customStart:null,customEnd:null,periodFromModal:false,rendered:4,timer:null,debounce:null},
+  desktop:{filter:"todos",search:"",movement:"todas",types:null,customStart:null,customEnd:null,periodFromModal:false,page:1,perPage:4,timer:null,debounce:null}
 };
 const DAYS_PER_LOAD=4;
 
@@ -751,7 +751,7 @@ document.getElementById("screenList").addEventListener("click",e=>{
   document.querySelectorAll("#screenList button").forEach(x=>x.classList.remove("active"));
   b.classList.add("active"); screen=b.dataset.screen;
   // troca de tela reseta filtros (opções de Data/Transação diferem entre telas)
-  ["mobile","desktop"].forEach(dev=>{const s=state[dev];s.filter="todos";s.movement="todas";s.types=null;s.customStart=null;s.customEnd=null;});
+  ["mobile","desktop"].forEach(dev=>{const s=state[dev];s.filter="todos";s.movement="todas";s.types=null;s.customStart=null;s.customEnd=null;s.periodFromModal=false;});
   state.mobile.rendered=4; state.desktop.page=1;
   buildSegmented(); rebuildFilterBodies();
   updateHeaders(); updateTags();
@@ -771,6 +771,7 @@ document.querySelectorAll('[data-seg]').forEach(seg=>{
     const dev=seg.dataset.seg;
     seg.querySelectorAll(".seg-btn").forEach(b=>b.classList.remove("active")); btn.classList.add("active");
     state[dev].filter=btn.dataset.filter;
+    state[dev].periodFromModal=false; // filtro rápido não vira chip
     if(dev==="mobile"){ state.mobile.rendered=4; mobileReload(); } else desktopReload(true);
   });
 });
@@ -905,6 +906,7 @@ function closeFilter(p){
 function applyFilter(p){
   const dev=devOf(p), r=readFilter(p), cfg=state[dev];
   cfg.filter=r.filter; cfg.movement=r.movement; cfg.types=r.types; cfg.customStart=r.customStart; cfg.customEnd=r.customEnd;
+  cfg.periodFromModal = r.filter!=="todos"; // período do modal vira chip
   syncSegmented(dev,r.filter);
   closeFilter(p);
   if(dev==="mobile"){ state.mobile.rendered=4; mobileReload(); } else desktopReload(true);
@@ -937,7 +939,7 @@ function renderChips(dev){
   const cfg=state[dev], el=document.getElementById(dev==="mobile"?"mChips":"dChips"); if(!el)return;
   const chips=[];
   if(cfg.search && cfg.search.trim()) chips.push({k:"search", label:cfg.search.trim()});
-  if(cfg.filter!=="todos") chips.push({k:"period", label:periodLabel(cfg.filter)});
+  if(cfg.filter!=="todos" && cfg.periodFromModal) chips.push({k:"period", label:periodLabel(cfg.filter)});
   if(cfg.movement!=="todas") chips.push({k:"movement", label: cfg.movement==="entrada"?"Entradas":"Saídas"});
   if(cfg.types && cfg.types.length) cfg.types.forEach(t=>chips.push({k:"type:"+t, label:t}));
   if(chips.length===0){ el.classList.add("hidden"); el.innerHTML=""; return; }
@@ -952,14 +954,14 @@ function renderChips(dev){
 function removeChip(dev,key){
   const cfg=state[dev];
   if(key==="search"){ cfg.search=""; const i=document.querySelector(`[data-search="${dev}"]`); if(i)i.value=""; }
-  else if(key==="period"){ cfg.filter="todos"; syncSegmented(dev,"todos"); }
+  else if(key==="period"){ cfg.filter="todos"; cfg.periodFromModal=false; syncSegmented(dev,"todos"); }
   else if(key==="movement"){ cfg.movement="todas"; }
   else if(key.indexOf("type:")===0){ const t=key.slice(5); cfg.types=(cfg.types||[]).filter(x=>x!==t); if(!cfg.types.length)cfg.types=null; }
   if(dev==="mobile"){ state.mobile.rendered=4; renderMobile(); } else { state.desktop.page=1; renderDesktop(); }
 }
 function clearAllChips(dev){
   const cfg=state[dev];
-  cfg.search=""; cfg.filter="todos"; cfg.movement="todas"; cfg.types=null; cfg.customStart=null; cfg.customEnd=null;
+  cfg.search=""; cfg.filter="todos"; cfg.movement="todas"; cfg.types=null; cfg.customStart=null; cfg.customEnd=null; cfg.periodFromModal=false;
   const i=document.querySelector(`[data-search="${dev}"]`); if(i)i.value="";
   syncSegmented(dev,"todos");
   if(dev==="mobile"){ state.mobile.rendered=4; renderMobile(); } else { state.desktop.page=1; renderDesktop(); }
