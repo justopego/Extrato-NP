@@ -550,17 +550,24 @@ const DATA={
   disponivel: gerar(7, 18, new Date(2026,5,16), 95, "disponivel"),   // de hoje (16/06) para trás
   futuros:    gerar(21, 10, new Date(2026,5,26), 0, "futuros"),       // de amanhã (17/06) para frente
 };
-// Única contestação do extrato: dia de hoje (16/06) + cobertura. Net zero no saldo do dia.
+// Pós-processamento do saldo disponível (contestação única + alguns estornos de Pix) e recálculo do saldo.
 (function(){
-  const dia12=DATA.disponivel.find(d=>d.date.getMonth()===5 && d.date.getDate()===16);
-  if(dia12){
-    txSeq++; const v=45;
-    dia12.txs.push(
+  const find=dd=>DATA.disponivel.find(d=>d.date.getMonth()===5 && d.date.getDate()===dd);
+  // Única contestação do extrato: dia de hoje (16/06) + cobertura (net zero).
+  const d16=find(16);
+  if(d16){ txSeq++; const v=45;
+    d16.txs.push(
       {tipo:"Contestação",id:txSeq,valor:v,metodo:"cartao",direcao:"out",origem:"Contestação"},
       {tipo:"Cobertura",id:txSeq,valor:v,metodo:"deposito",direcao:"in",origem:"Depósito",nome:"Cobertura contestação"}
     );
-    dia12.saidas+=v; dia12.entradas+=v; // saldoDia inalterado
   }
+  // Algumas poucas devoluções via Pix (estorno de venda/link com Pix) — só no saldo disponível.
+  [[16,30],[15,20]].forEach(([dd,v])=>{ const d=find(dd); if(d){ txSeq++;
+    d.txs.push({tipo:"Estorno",id:txSeq,valor:v,metodo:"pix",direcao:"out",origem:"Estorno"}); } });
+  // Recalcula entradas/saídas e saldo encadeado (saldo inicial = 95).
+  let prev=95;
+  DATA.disponivel.forEach(d=>{ let e=0,s=0; d.txs.forEach(t=>t.direcao==="in"?e+=t.valor:s+=t.valor);
+    d.entradas=e; d.saidas=s; d.saldoDia=prev+e-s; prev=d.saldoDia; });
 })();
 
 /* =========================================================================
