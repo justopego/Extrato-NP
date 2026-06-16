@@ -482,7 +482,7 @@ const OUT_FUT=["Estorno","Estorno","Estorno","Estorno","Contestação"];   // se
 // Nomes dos pagamentos (saída via boleto) usados na tx-line
 const PAG_NOMES=["Plano Nuvemshop","Etiqueta de envio","Etiqueta Nuvem de envio","Mensalidade de aplicativo","Plano Nuvemshop"];
 function origem(t){return{ "Venda":"Loja online","Link de pagamento":"Link de pagamento","Pagamento":"Pagamento",
-  "Depósito":"Conta Nuvem","Estorno":"Estorno","Contestação":"Contestação","Transferência":"Conta bancária"}[t]||"Loja online";}
+  "Depósito":"Conta Nuvem","Estorno":"Estorno","Contestação":"Contestação","Transferência":"Conta bancária","Cobertura":"Depósito"}[t]||"Loja online";}
 function nomeCurto(t){ return t==="Link de pagamento" ? "Link" : t; }
 // Regras de método de pagamento por tela:
 // - Pix em "Link de pagamento" e em vendas só existe no SALDO DISPONÍVEL.
@@ -505,7 +505,8 @@ function metodoDe(tipo, screen, rng){
 const NIMBUS_ICONS={
   cartao:'<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M17.6102 3.6001H1.58981C0.733762 3.6001 0 4.33386 0 5.18991V15.0956C0 15.9517 0.733762 16.6855 1.58981 16.6855H17.6102C18.4662 16.6855 19.2 15.9517 19.2 15.0956V5.18991C19.0777 4.33386 18.4662 3.6001 17.6102 3.6001ZM17.6102 5.18991V7.1466H1.58981V5.18991H17.6102ZM1.58981 15.0956V9.34787H17.6102V15.0956H1.58981Z" fill="currentColor"/><path d="M6.11465 12.0383H3.05733V13.6281H6.11465V12.0383Z" fill="currentColor"/></svg>',
   boleto:'<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M0 16.2V3H3V16.2H0Z" fill="currentColor"/><path d="M13.26 16.2V3H16.26V16.2H13.26Z" fill="currentColor"/><path d="M6 3V16.2H7.5V3H6Z" fill="currentColor"/><path d="M9 16.2V3H10.5V16.2H9Z" fill="currentColor"/><path d="M17.79 3V16.2H19.29V3H17.79Z" fill="currentColor"/></svg>',
-  pix:'<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M5.09947 5.13896C5.75859 5.13896 6.37844 5.39568 6.84446 5.86156L9.37332 8.39094C9.55544 8.57308 9.85285 8.57387 10.0354 8.39072L12.5551 5.87073C13.0211 5.40485 13.6409 5.1482 14.3001 5.1482H14.6036L11.4033 1.94772C10.4066 0.951019 8.79076 0.951019 7.7941 1.94772L4.60304 5.13896H5.09947Z" fill="currentColor"/><path d="M14.3001 14.0522C13.6409 14.0522 13.0211 13.7955 12.5552 13.3297L10.0354 10.8099C9.8586 10.6325 9.55022 10.6331 9.37339 10.8099L6.84452 13.3389C6.37843 13.8047 5.75858 14.0613 5.09946 14.0613H4.60295L7.7941 17.2527C8.79076 18.2493 10.4066 18.2493 11.4033 17.2527L14.6037 14.0522H14.3001Z" fill="currentColor"/><path d="M15.3176 5.86098L17.2516 7.79517C18.2485 8.79187 18.2485 10.4079 17.2516 11.4048L15.3177 13.3388C15.275 13.3217 15.229 13.3112 15.1803 13.3112H14.3009C13.8463 13.3112 13.4013 13.1269 13.0801 12.8053L10.5602 10.2856C10.1035 9.82839 9.30674 9.82862 8.84963 10.2854L6.3206 12.8145C5.99932 13.136 5.55437 13.3203 5.0997 13.3203H4.01843C3.97237 13.3203 3.92915 13.3312 3.88846 13.3466L1.94676 11.4048C0.950038 10.4079 0.950038 8.79187 1.94676 7.79517L3.88853 5.85331C3.92922 5.86863 3.97237 5.87954 4.01843 5.87954H5.0997C5.55437 5.87954 5.99932 6.0639 6.3206 6.38535L8.84986 8.91475C9.08564 9.15031 9.39524 9.26836 9.70506 9.26836C10.0147 9.26836 10.3245 9.15031 10.5602 8.91451L13.0801 6.39452C13.4013 6.07306 13.8463 5.88871 14.3009 5.88871H15.1803C15.2289 5.88871 15.275 5.87804 15.3176 5.86098Z" fill="currentColor"/></svg>'
+  pix:'<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M5.09947 5.13896C5.75859 5.13896 6.37844 5.39568 6.84446 5.86156L9.37332 8.39094C9.55544 8.57308 9.85285 8.57387 10.0354 8.39072L12.5551 5.87073C13.0211 5.40485 13.6409 5.1482 14.3001 5.1482H14.6036L11.4033 1.94772C10.4066 0.951019 8.79076 0.951019 7.7941 1.94772L4.60304 5.13896H5.09947Z" fill="currentColor"/><path d="M14.3001 14.0522C13.6409 14.0522 13.0211 13.7955 12.5552 13.3297L10.0354 10.8099C9.8586 10.6325 9.55022 10.6331 9.37339 10.8099L6.84452 13.3389C6.37843 13.8047 5.75858 14.0613 5.09946 14.0613H4.60295L7.7941 17.2527C8.79076 18.2493 10.4066 18.2493 11.4033 17.2527L14.6037 14.0522H14.3001Z" fill="currentColor"/><path d="M15.3176 5.86098L17.2516 7.79517C18.2485 8.79187 18.2485 10.4079 17.2516 11.4048L15.3177 13.3388C15.275 13.3217 15.229 13.3112 15.1803 13.3112H14.3009C13.8463 13.3112 13.4013 13.1269 13.0801 12.8053L10.5602 10.2856C10.1035 9.82839 9.30674 9.82862 8.84963 10.2854L6.3206 12.8145C5.99932 13.136 5.55437 13.3203 5.0997 13.3203H4.01843C3.97237 13.3203 3.92915 13.3312 3.88846 13.3466L1.94676 11.4048C0.950038 10.4079 0.950038 8.79187 1.94676 7.79517L3.88853 5.85331C3.92922 5.86863 3.97237 5.87954 4.01843 5.87954H5.0997C5.55437 5.87954 5.99932 6.0639 6.3206 6.38535L8.84986 8.91475C9.08564 9.15031 9.39524 9.26836 9.70506 9.26836C10.0147 9.26836 10.3245 9.15031 10.5602 8.91451L13.0801 6.39452C13.4013 6.07306 13.8463 5.88871 14.3009 5.88871H15.1803C15.2289 5.88871 15.275 5.87804 15.3176 5.86098Z" fill="currentColor"/></svg>',
+  deposito:'<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M11.8507 11.1004L11.8507 0.477213H13.3512L13.3512 11.1004H11.8507Z" fill="currentColor"/><path fill-rule="evenodd" clip-rule="evenodd" d="M7.34939 8.0995L7.34939 18.7227H5.84894L5.84894 8.0995H7.34939Z" fill="currentColor"/><path fill-rule="evenodd" clip-rule="evenodd" d="M9.8196 12.9292L11.0603 13.773L7.85431 18.4867C7.57241 18.9009 7.13012 19.2 6.59884 19.2C6.06753 19.2 5.62528 18.9008 5.34352 18.4865L5.34343 18.4864L2.1377 13.7734L3.37834 12.9295L6.58426 17.6427C6.58941 17.6503 6.59432 17.6571 6.59896 17.6631C6.60363 17.657 6.60858 17.6503 6.61377 17.6426L9.8196 12.9292Z" fill="currentColor"/><path fill-rule="evenodd" clip-rule="evenodd" d="M9.38035 6.27074L8.13967 5.42691L11.3456 0.713221C11.6275 0.299032 12.0698 -0.00005 12.6011 -0.0000499409C13.1324 -0.0000498 13.5747 0.299061 13.8564 0.713404L13.8565 0.713538L17.0623 5.4265L15.8216 6.27038L12.6157 1.55715C12.6105 1.54958 12.6056 1.54282 12.601 1.53679C12.5963 1.54285 12.5914 1.54965 12.5862 1.55726L9.38035 6.27074Z" fill="currentColor"/></svg>'
 };
 function methodIcon(m){ return NIMBUS_ICONS[m] || NIMBUS_ICONS.cartao; }
 // RNG determinístico
@@ -532,6 +533,11 @@ function gerar(seed, qtdDias, startDate, saldoInicial, screen){
       const t={tipo,id:txSeq,valor,metodo:metodoDe(tipo,screen,rng),direcao:dirOf(tipo),origem:origem(tipo)};
       if(tipo==="Pagamento") t.nome=choice(rng,PAG_NOMES); // nome exibido na tx-line
       txs.push(t); if(t.direcao==="in")ent+=valor; else sai+=valor;
+      // Seguro chargeback: cada contestação (saída) do saldo disponível gera uma cobertura (entrada)
+      if(tipo==="Contestação" && screen==="disponivel"){
+        const cov={tipo:"Cobertura",id:txSeq,valor,metodo:"deposito",direcao:"in",origem:"Depósito",nome:"Cobertura contestação"};
+        txs.push(cov); ent+=valor;
+      }
     }
     const saldoDia=saldoAnterior+ent-sai; saldoAnterior=saldoDia;
     dias.push({date,txs,entradas:ent,saidas:sai,saldoDia});
@@ -622,7 +628,7 @@ function txRow(t){
     :'<svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 19V5M6 11l6-6 6 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   return `<div class="tx"><div class="tx-icon"><div class="method">${methodIcon(t.metodo)}</div><div class="badge ${out?'out':'in'}">${arrow}</div></div>
     <div class="tx-body"><span class="tx-origin">${t.origem}</span><div class="tx-line">
-    <span class="tx-name">${t.tipo==="Pagamento" ? `<span class="lbl">${t.nome}</span>` : `<span class="lbl">${nomeCurto(t.tipo)} #</span><span class="num">${t.id}</span>`}</span>
+    <span class="tx-name">${t.nome ? `<span class="lbl">${t.nome}</span>` : `<span class="lbl">${nomeCurto(t.tipo)} #</span><span class="num">${t.id}</span>`}</span>
     <span class="tx-amount-wrap"><span class="tx-amount ${out?'out':''}">${out?'- ':''}${fmt(t.valor)}</span>
     <span class="tx-chev"><svg width="14" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></span>
     </div></div></div>`;
@@ -989,11 +995,15 @@ function dmy(d){return pad2(d.getDate())+"/"+pad2(d.getMonth()+1)+"/"+d.getFullY
 function dmyFile(d){return pad2(d.getDate())+"_"+pad2(d.getMonth()+1)+"_"+d.getFullYear();}
 function numBR(v){return v.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2});}
 function formaDe(t){
-  if(t.tipo==="Transferência") return "TED";
+  if(t.tipo==="Transferência"||t.tipo==="Cobertura") return "TED";
   if(t.tipo==="Link de pagamento") return "Link de pagamento";
-  return t.metodo==="cartao" ? "Cartão de crédito" : (t.metodo==="pix" ? "Pix" : "Boleto");
+  return t.metodo==="cartao" ? "Cartão de crédito" : (t.metodo==="pix" ? "Pix" : (t.metodo==="deposito" ? "TED" : "Boleto"));
 }
-function tipoTransacaoCSV(t){ return t.tipo==="Link de pagamento" ? "Venda" : t.tipo; }
+function tipoTransacaoCSV(t){
+  if(t.tipo==="Link de pagamento") return "Venda";
+  if(t.tipo==="Cobertura") return "Depósito";
+  return t.tipo;
+}
 function pagamentoDate(receb,forma){
   const d=new Date(receb);
   const off = (forma==="Cartão de crédito"||forma==="Link de pagamento") ? 14 : (forma==="Boleto" ? 2 : 0);
@@ -1004,11 +1014,11 @@ function exportCSV(dev){
   days.forEach(day=>{ day.txs.forEach(t=>{
     const forma=formaDe(t), tipoT=tipoTransacaoCSV(t);
     const mov=t.direcao==="in"?"Entrada":"Saída";
-    const numero=(t.tipo==="Transferência"||t.tipo==="Pagamento")?"":t.id;
+    const numero=(t.tipo==="Transferência"||t.tipo==="Pagamento"||t.tipo==="Cobertura")?"":t.id;
     const parcelas=(forma==="Cartão de crédito"||forma==="Link de pagamento")?((t.id%5)+1):"";
     const bruto=t.direcao==="in"?t.valor:-t.valor;
     let fee = tipoT==="Contestação" ? 3 : (forma==="TED" ? 0.99 : 5);
-    if(t.tipo==="Pagamento") fee=0;
+    if(t.tipo==="Pagamento"||t.tipo==="Cobertura") fee=0;
     const taxa = t.direcao==="in" ? -fee : (forma==="TED" ? -0.99 : (t.tipo==="Pagamento" ? 0 : fee));
     const liquido = bruto + taxa;
     const receb=day.date, pag=pagamentoDate(receb,forma);
