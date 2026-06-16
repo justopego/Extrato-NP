@@ -983,6 +983,53 @@ function clearAllChips(dev){
   });
 });
 
+/* ---- Exportar CSV (respeita os filtros ativos) ---- */
+function pad2(n){return String(n).padStart(2,"0");}
+function dmy(d){return pad2(d.getDate())+"/"+pad2(d.getMonth()+1)+"/"+d.getFullYear();}
+function dmyFile(d){return pad2(d.getDate())+"_"+pad2(d.getMonth()+1)+"_"+d.getFullYear();}
+function numBR(v){return v.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2});}
+function formaDe(t){
+  if(t.tipo==="Transferência") return "TED";
+  if(t.tipo==="Link de pagamento") return "Link de pagamento";
+  return t.metodo==="cartao" ? "Cartão de crédito" : (t.metodo==="pix" ? "Pix" : "Boleto");
+}
+function tipoTransacaoCSV(t){ return t.tipo==="Link de pagamento" ? "Venda" : t.tipo; }
+function pagamentoDate(receb,forma){
+  const d=new Date(receb);
+  const off = (forma==="Cartão de crédito"||forma==="Link de pagamento") ? 14 : (forma==="Boleto" ? 2 : 0);
+  d.setDate(d.getDate()-off); return d;
+}
+function exportCSV(dev){
+  const cfg=state[dev], days=filteredDays(cfg), rows=[];
+  days.forEach(day=>{ day.txs.forEach(t=>{
+    const forma=formaDe(t), tipoT=tipoTransacaoCSV(t);
+    const mov=t.direcao==="in"?"Entrada":"Saída";
+    const numero=(t.tipo==="Transferência"||t.tipo==="Pagamento")?"":t.id;
+    const parcelas=(forma==="Cartão de crédito"||forma==="Link de pagamento")?((t.id%5)+1):"";
+    const bruto=t.direcao==="in"?t.valor:-t.valor;
+    let fee = tipoT==="Contestação" ? 3 : (forma==="TED" ? 0.99 : 5);
+    if(t.tipo==="Pagamento") fee=0;
+    const taxa = t.direcao==="in" ? -fee : (forma==="TED" ? -0.99 : (t.tipo==="Pagamento" ? 0 : fee));
+    const liquido = bruto + taxa;
+    const receb=day.date, pag=pagamentoDate(receb,forma);
+    rows.push([dmy(pag),dmy(receb),mov,tipoT,numero,forma,parcelas,numBR(bruto),numBR(taxa),numBR(liquido)].join(";"));
+  });});
+  const header="Data do pagamento;Data de recebimento;Tipo de movimentação;Tipo de transação;Número da transação;Forma de pagamento;Parcelas;Valor Bruto R$;Taxas R$;Valor Liquido R$";
+  const csv="﻿"+header+"\n"+rows.join("\n");
+  const ds=days.map(d=>d.date.getTime());
+  const minD=ds.length?new Date(Math.min(...ds)):HOJE, maxD=ds.length?new Date(Math.max(...ds)):HOJE;
+  const tela=screen==="disponivel"?"saldo_disponivel":"lancamentos_futuros";
+  const fname=`Extrato_${tela}_${dmyFile(minD)}-${dmyFile(maxD)}.csv`;
+  const blob=new Blob([csv],{type:"text/csv;charset=utf-8;"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a"); a.href=url; a.download=fname; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+document.querySelectorAll('.icon-btn[aria-label="Exportar"]').forEach(btn=>{
+  const dev = btn.closest('#desktopFrame') ? "desktop" : "mobile";
+  btn.addEventListener("click",()=>exportCSV(dev));
+});
+
 /* ---- Init ---- */
 updateHeaders(); updateTags(); renderMobile();
 </script>
