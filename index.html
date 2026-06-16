@@ -476,9 +476,9 @@ const TIPOS_OUT=["Estorno","Contestação","Transferência","Pagamento"]; // Pag
 const dirOf=t=>TIPOS_OUT.includes(t)?"out":"in";
 // Pools de tipos por tela (Contestação rara; futuros sem Depósito/Transferência/Pagamento)
 const IN_DISP=["Venda","Venda","Venda","Venda","Link de pagamento","Link de pagamento","Link de pagamento","Depósito"];
-const OUT_DISP=["Estorno","Estorno","Estorno","Transferência","Transferência","Pagamento","Pagamento","Contestação"];
+const OUT_DISP=["Estorno","Estorno","Estorno","Estorno","Transferência","Transferência","Pagamento","Pagamento"]; // contestação injetada só no dia 12/03
 const IN_FUT=["Venda","Venda","Venda","Link de pagamento","Link de pagamento","Link de pagamento"]; // futuros: só Venda e Link
-const OUT_FUT=["Estorno","Estorno","Estorno","Estorno","Contestação"];   // sem Transferência/Pagamento
+const OUT_FUT=["Estorno","Estorno","Estorno","Estorno"];   // sem Transferência/Pagamento/Contestação
 // Nomes dos pagamentos (saída via boleto) usados na tx-line
 const PAG_NOMES=["Plano Nuvemshop","Etiqueta de envio","Etiqueta Nuvem de envio","Mensalidade de aplicativo","Plano Nuvemshop"];
 function origem(t){return{ "Venda":"Loja online","Link de pagamento":"Link de pagamento","Pagamento":"Pagamento",
@@ -549,6 +549,18 @@ const DATA={
   disponivel: gerar(7, 18, new Date(2026,2,12), 95, "disponivel"),
   futuros:    gerar(21, 10, new Date(2026,2,22), 0, "futuros"),
 };
+// Única contestação do extrato: dia 12 de março (+ cobertura). Net zero no saldo do dia.
+(function(){
+  const dia12=DATA.disponivel.find(d=>d.date.getMonth()===2 && d.date.getDate()===12);
+  if(dia12){
+    txSeq++; const v=45;
+    dia12.txs.push(
+      {tipo:"Contestação",id:txSeq,valor:v,metodo:"cartao",direcao:"out",origem:"Contestação"},
+      {tipo:"Cobertura",id:txSeq,valor:v,metodo:"deposito",direcao:"in",origem:"Depósito",nome:"Cobertura contestação"}
+    );
+    dia12.saidas+=v; dia12.entradas+=v; // saldoDia inalterado
+  }
+})();
 
 /* =========================================================================
    ESTADO + RENDER
