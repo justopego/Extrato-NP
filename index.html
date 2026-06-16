@@ -628,7 +628,8 @@ function txMatches(t,cfg){
 }
 function filteredDays(cfg){
   // mais recente primeiro
-  return [...DATA[screen]].sort((a,b)=>b.date-a.date)
+  // disponível: mais recente primeiro (decrescente). futuros: data crescente (17/06 no topo)
+  return [...DATA[screen]].sort((a,b)=> screen==="futuros" ? a.date-b.date : b.date-a.date)
     .filter(d=>dayInPeriod(d,cfg))
     .map(d=>({...d,txs:d.txs.filter(t=>txMatches(t,cfg))}))
     .filter(d=>d.txs.length>0);
