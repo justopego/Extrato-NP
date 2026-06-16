@@ -489,7 +489,8 @@ function nomeCurto(t){ return t==="Link de pagamento" ? "Link" : t; }
 // - Nos LANÇAMENTOS FUTUROS, Pix só aparece em Estorno (estorno de venda com Pix).
 function metodoDe(tipo, screen, rng){
   if(screen==="futuros"){
-    if(tipo==="Estorno") return "pix";   // estorno de venda com Pix
+    // futuros: estorno só de venda/link com cartão de crédito (sem Pix)
+    if(tipo==="Estorno") return "cartao";
     if(tipo==="Venda") return rng()<0.92 ? "cartao" : "boleto"; // sem Pix; poucas com boleto
     return "cartao";                      // Link em futuros = cartão (sem Pix)
   }
